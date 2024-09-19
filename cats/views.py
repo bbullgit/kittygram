@@ -17,3 +17,19 @@ def cat_list(request):
     cats = Cat.objects.all()
     serializer = CatSerializer(cats, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET', 'PUT', 'PATH', 'DELETE'])
+def cat_detail(request, pk):
+    cat = Cat.objects.get(pk=pk)
+    if request.method == 'PUT' or request.method == 'PATH':
+        serializer = CatSerializer(cat, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'DELETE':
+        cat.delete()
+        return Response(status=status.HTTP_200_OK)
+    serializer = CatSerializer(cat)
+    return Response(serializer.data)
